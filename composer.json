@@ -1,0 +1,32 @@
+{
+    "name": "taniko/scheduler",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yuya Aratani",
+            "email": "hrgruri@gmail.com"
+        }
+    ],
+    "require": {
+        "cakephp/chronos": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Taniko\\Scheduler\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test"     : "./vendor/bin/phpunit",
+        "phpunit"  : "./vendor/bin/phpunit",
+        "coverage" : "./vendor/bin/phpunit --coverage-html coverage"
+    }
+}
