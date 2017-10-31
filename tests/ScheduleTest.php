@@ -99,7 +99,7 @@ class ScheduleTest extends \PHPUnit\Framework\TestCase
         $s = $schedule->toArray();
         $this->assertEquals(Schedule::ONE_TIME, $s['type']);
         $this->assertEquals(1, $s['interval']);
-        $this->assertTrue($now->eq($s['start']));
-        $this->assertTrue($now->addDays(1)->eq($s['end']));
+        $this->assertTrue($now->eq($s['start_at']));
+        $this->assertTrue($now->addDays(1)->eq($s['end_at']));
     }
 }

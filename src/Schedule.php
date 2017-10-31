@@ -12,17 +12,32 @@ class Schedule
     const MONTHLY  = 4;
 
     const DEFAULT_TAKE   = 100;
-    const DEFAULT_REPEAT = 50;
 
+    private $name     = 'Untitled';
+    private $enabled  = true;
     private $type     = self::ONE_TIME;
-    private $repeat   = self::DEFAULT_REPEAT;
+    private $repeat   = 1;
     private $interval = 0;
-    private $relative = 0;
-    private $param    = 0;
     private $item     = null;
+    private $start_at = null;
+    private $end_at   = null;
     private $limit    = null;
-    private $start    = null;
-    private $end      = null;
+    private $fillable = [
+        'name',
+        'enabled',
+        'type',
+        'repeat',
+        'interval',
+        'item',
+        'start_at',
+        'end_at',
+        'limit',
+    ];
+    private $cast = [
+        'start_at',
+        'end_at',
+        'limit',
+    ];
 
     /**
      * create a new schedule
@@ -30,15 +45,12 @@ class Schedule
      */
     public function __construct(array $setting = null)
     {
-        $this->type     = $setting['type']      ?? $this->type;
-        $this->repeat   = $setting['repeat']    ?? $this->repeat;
-        $this->interval = $setting['interval']  ?? $this->interval;
-        $this->relative = $setting['relative']  ?? $this->relative;
-        $this->param    = $setting['param']     ?? $this->param;
-        $this->item     = $setting['item']      ?? $this->item;
-        $this->limit    = $setting['limit']     ?? $this->limit;
-        $this->start    = is_a($setting['start'], Chronos::class) ? $setting['start'] : null;
-        $this->end      = is_a($setting['end'], Chronos::class)   ? $setting['end']   : null;
+        foreach ($this->fillable as $key) {
+            $this->{$key} = $setting[$key] ?? $this->{$key};
+        }
+        foreach ($this->cast as $key) {
+            $this->{$key} = new Chronos($this->{$key});
+        }
     }
 
     /**
@@ -47,8 +59,6 @@ class Schedule
     private function reset()
     {
         $this->type  = self::ONE_TIME;
-        $this->param = 0;
-        $this->relative = 0;
     }
 
     /**
@@ -103,8 +113,8 @@ class Schedule
      */
     public function set(string $start, string $end) : Schedule
     {
-        $this->start = new Chronos($start);
-        $this->end   = new Chronos($end);
+        $this->start_at = new Chronos($start);
+        $this->end_at   = new Chronos($end);
         return $this;
     }
 
@@ -144,16 +154,16 @@ class Schedule
     /**
      * check datetime exists in the events
      * @param  string $datetime
-     * @param  int    $limit
+     * @param  int    $count
      * @return bool
      */
-    public function exists(string $datetime, int $limit = null) : bool
+    public function exists(string $datetime, int $count = null) : bool
     {
         $result = false;
         $target = new Chronos($datetime);
-        $events = $this->take($limit);
+        $events = $this->take($count);
         foreach ($events as $key => $event) {
-            if ($target->between($event->start, $event->end)) {
+            if ($target->between($event->start_at, $event->end_at)) {
                 $result = true;
                 break;
             }
@@ -163,34 +173,34 @@ class Schedule
 
     /**
      * take events
-     * @param  int $limit
+     * @param  int $count
      * @return array array of Taniko\Scheduler\Event
      */
-    public function take(int $limit = null) : array
+    public function take(int $count = null) : array
     {
         $result = [];
-        $limit = $limit ?? self::DEFAULT_TAKE;
+        $count = $count ?? self::DEFAULT_TAKE;
         switch ($this->type) {
             case self::ONE_TIME:
                 $result = $this->getOnetime();
                 break;
 
             case self::DAILY:
-                $result = $this->getDaily($limit);
+                $result = $this->getDaily($count);
                 break;
 
             case self::WEEKLY:
-                $result = $this->getWeekly($limit);
+                $result = $this->getWeekly($count);
                 break;
 
             case self::MONTHLY:
-                $result = $this->getMonthly($limit);
+                $result = $this->getMonthly($count);
                 break;
         }
         foreach ($result as $key => $item) {
             $result[$key] = new Event(
-                $item['start'],
-                $item['end'],
+                $item['start_at'],
+                $item['end_at'],
                 $this->item
             );
         }
@@ -212,7 +222,7 @@ class Schedule
      */
     public function getStart() : Chronos
     {
-        return $this->start;
+        return $this->start_at;
     }
 
     /**
@@ -221,7 +231,7 @@ class Schedule
      */
     public function getEnd() : Chronos
     {
-        return $this->end;
+        return $this->end_at;
     }
 
     /**
@@ -235,15 +245,15 @@ class Schedule
     {
         $result = [];
         $count  = 0;
-        $start  = $this->start;
-        $end    = $this->end;
+        $start_at  = $this->start_at;
+        $end_at    = $this->end_at;
         do {
             $result[] = [
-                'start' => $start,
-                'end'   => $end
+                'start_at' => $start_at,
+                'end_at'   => $end_at
             ];
-            $start = $start->{$forward}($interval);
-            $end   = $end->{$forward}($interval);
+            $start_at = $start_at->{$forward}($interval);
+            $end_at   = $end_at->{$forward}($interval);
             $count++;
         } while ($count < $limit && $count < $this->repeat);
         return $result;
@@ -256,8 +266,8 @@ class Schedule
     private function getOnetime() : array
     {
         return [[
-            'start' => $this->start,
-            'end'   => $this->end
+            'start_at' => $this->start_at,
+            'end_at'   => $this->end_at
         ]];
     }
 
@@ -297,16 +307,10 @@ class Schedule
      */
     public function toArray() : array
     {
-        return [
-            'type'      => $this->type,
-            'repeat'    => $this->repeat,
-            'interval'  => $this->interval,
-            'relative'  => $this->relative,
-            'param'     => $this->param,
-            'item'      => $this->item,
-            'limit'     => $this->limit,
-            'start'     => $this->start,
-            'end'       => $this->end
-        ];
+        $result = [];
+        foreach ($this->fillable as $name) {
+            $result[$name] = $this->{$name};
+        }
+        return $result;
     }
 }

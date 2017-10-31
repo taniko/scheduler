@@ -25,7 +25,7 @@ class Scheduler
         $target = new Chronos($datetime);
         $events = $this->take($limit);
         foreach ($events as $key => $event) {
-            if ($target->between($event->start, $event->end)) {
+            if ($target->between($event->start_at, $event->end_at)) {
                 $result = true;
                 break;
             }
@@ -41,13 +41,13 @@ class Scheduler
             $result = array_merge($result, $schedule->take($limit));
         }
         usort($result, function ($a, $b) {
-            if ($a->start->eq($b->start)) {
-                if ($a->end->eq($b->end)) {
+            if ($a->start_at->eq($b->start_at)) {
+                if ($a->end_at->eq($b->end_at)) {
                     return 0;
                 }
-                return $a->end->gte($b->end) ? 1 : -1;
+                return $a->end_at->gte($b->end_at) ? 1 : -1;
             }
-            return $a->start->gte($b->start) ? 1 : -1;
+            return $a->start_at->gte($b->start_at) ? 1 : -1;
         });
         return $result;
     }

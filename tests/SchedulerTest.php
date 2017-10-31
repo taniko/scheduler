@@ -73,6 +73,6 @@ class SchedulerTest extends \PHPUnit\Framework\TestCase
 
         $events = $scheduler->take();
         $this->assertEquals(8, count($events));
-        $this->assertTrue($events[0]->start->lte($events[1]->start));
+        $this->assertTrue($events[0]->start_at->lte($events[1]->start_at));
     }
 }
