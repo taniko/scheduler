@@ -14,19 +14,22 @@ class Weekly extends Schedule
         $result = [];
         $start_at = $this->datetime;
         $end_at   = $this->datetime->addSeconds($this->time);
+        $repeat   = 0;
 
         // advance time to $since
         if (isset($since)) {
             while ($start_at->lt($since)) {
                 $start_at = $start_at->addWeeks($this->interval);
                 $end_at   = $end_at->addWeeks($this->interval);
+                $repeat++;
             }
         }
 
         $i = 0;
-        $flag = isset($until);
+        $flag_until = isset($until);
+        $flag_rpt   = isset($this->repeat);
         do {
-            if ($flag && $until->lt($end_at)) {
+            if ($flag_rpt && $repeat >= $this->repeat || $flag_until && $until->lt($end_at)) {
                 break;
             }
             $result[] = [
@@ -36,6 +39,7 @@ class Weekly extends Schedule
             $start_at = $start_at->addWeeks($this->interval);
             $end_at   = $end_at->addWeeks($this->interval);
             $i++;
+            $repeat++;
         } while ($i < $count);
         return $result;
     }

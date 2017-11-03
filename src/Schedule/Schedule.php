@@ -13,12 +13,13 @@ abstract class Schedule
     const MONTHLY  = 4;
     const RELATIVE = 5;
 
-    protected $type;
-    protected $time;
-    protected $datetime;
+    protected $type     = null;
+    protected $time     = null;
+    protected $datetime = null;
     protected $interval = 1;
-    protected $relative_param;
-    protected $dow;
+    protected $repeat   = null;
+    protected $dow      = null;
+    protected $relative_param = null;
 
     public $item;
 
@@ -54,6 +55,12 @@ abstract class Schedule
     public function interval(int $interval) : Schedule
     {
         $this->interval = $interval;
+        return $this;
+    }
+
+    public function repeat(int $repeat) : Schedule
+    {
+        $this->repeat = $repeat;
         return $this;
     }
 }

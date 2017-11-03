@@ -57,6 +57,17 @@ class RelativejjTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testRepeat()
+    {
+        $now = new Chronos('2017-04-01 23:30:00');
+        $schedule = Scheduler::relative(Relative::FIRST, Relative::SATURDAY)
+            ->when($now)
+            ->time(1, 0, 0)
+            ->repeat(2);
+        $items = $schedule->take(10);
+        $this->assertEquals(2, count($items));
+    }
+
     public function testSince()
     {
         $now = new Chronos('2017-04-01 23:30:00');

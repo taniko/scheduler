@@ -39,16 +39,22 @@ class Relative extends Schedule
             ->nthOfMonth(self::s2cnth($this->relative_param), self::s2dcdow($this->dow))
             ->addSeconds($second);
 
-        $i = 0;
-        $flag = isset($until);
-        $rp   = self::s2cnth($this->relative_param);
-        $dow  = self::s2dcdow($this->dow);
+        $i      = 0;
+        $repeat = 0;
+        $flag   = isset($until);
+        $rp     = self::s2cnth($this->relative_param);
+        $dow    = self::s2dcdow($this->dow);
+        $flag_rpt   = isset($this->repeat);
+        
         do {
-            if ($start_at->lt($since)) {
+            if ($flag_rpt && $repeat >= $this->repeat) {
+                break;
+            } elseif ($start_at->lt($since)) {
                 $start_at = $start_at
                     ->addMonths($this->interval)
                     ->nthOfMonth($rp, $dow)
                     ->addSeconds($second);
+                $repeat++;
                 continue;
             }
             $end_at   = $start_at->addSeconds($this->time);
@@ -64,6 +70,7 @@ class Relative extends Schedule
                 ->nthOfMonth($rp, $dow)
                 ->addSeconds($second);
             $i++;
+            $repeat++;
         } while ($i < $count);
         return $result;
     }
