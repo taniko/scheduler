@@ -13,6 +13,16 @@ abstract class Schedule
     const MONTHLY  = 4;
     const RELATIVE = 5;
 
+    private $fillable = [
+        'type',
+        'time',
+        'datetime',
+        'interval',
+        'repeat',
+        'dow',
+        'relative_param',
+    ];
+
     protected $type     = null;
     protected $time     = null;
     protected $datetime = null;
@@ -61,6 +71,23 @@ abstract class Schedule
     public function repeat(int $repeat) : Schedule
     {
         $this->repeat = $repeat;
+        return $this;
+    }
+
+    public function toArray() : array
+    {
+        $result = [];
+        foreach ($this->fillable as $name) {
+            $result[$name] = $this->{$name};
+        }
+        return $result;
+    }
+
+    public function init(array $params) : Schedule
+    {
+        foreach ($this->fillable as $name) {
+            $this->{$name} = $params[$name] ?? null;
+        }
         return $this;
     }
 }

@@ -2,8 +2,8 @@
 namespace Taniko\Scheduler;
 
 use Cake\Chronos\Chronos;
-use Taniko\Scheduler\Schedule\Schedule;
 use Taniko\Scheduler\Schedule\{
+    Schedule,
     Onetime,
     Daily,
     Weekly,
@@ -83,5 +83,36 @@ class Scheduler
             return $a['start_at']->gte($b['start_at']) ? 1 : -1;
         });
         return array_slice($result, 0, $limit);
+    }
+
+    public static function fromArray(array $params) : Schedule
+    {
+        $schedule = null;
+        switch ($params['type']) {
+            case Schedule::ONETIME:
+                $schedule = self::onetime()->init($params);
+                break;
+
+            case Schedule::DAILY:
+                $schedule = self::daily()->init($params);
+                break;
+
+            case Schedule::WEEKLY:
+                $schedule = self::weekly()->init($params);
+                break;
+
+            case Schedule::MONTHLY:
+                $schedule = self::monthly()->init($params);
+                break;
+
+            case Schedule::RELATIVE:
+                $schedule = self::relative()->init($params);
+                break;
+
+            default:
+                throw new \InvalidArgumentException;
+                break;
+        }
+        return $schedule;
     }
 }

@@ -7,12 +7,6 @@ use Cake\Chronos\ChronosInterface;
 
 class OnetimeTest extends \PHPUnit\Framework\TestCase
 {
-    public function testItem()
-    {
-        $schedule = Scheduler::onetime()->item(1);
-        $this->assertEquals(1, $schedule->item);
-    }
-
     public function testOnetime()
     {
         $now      = new Chronos('2017-04-01 00:00:00');
