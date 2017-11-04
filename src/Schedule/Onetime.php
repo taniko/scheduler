@@ -9,6 +9,14 @@ class Onetime extends Schedule
     {
         $this->type = parent::ONETIME;
     }
+
+    /**
+     * get times
+     * @param  int    $count  maximum number of items to take
+     * @param  Cake\Chronos\Chronos|null $since  start date of search range
+     * @param  Cake\Chronos\Chronos|null $until  end date of search range
+     * @return array
+     */
     protected function getTimes(int $count, Chronos $since = null, Chronos $until = null) : array
     {
         $end = $this->datetime->addSeconds($this->time);

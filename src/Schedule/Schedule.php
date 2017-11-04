@@ -35,6 +35,13 @@ abstract class Schedule
 
     abstract protected function getTimes(int $count, Chronos $since = null, Chronos $until = null) : array;
 
+    /**
+     * get times
+     * @param  int    $count  maximum number of items to take
+     * @param  Cake\Chronos\Chronos|null $since  start date of search range
+     * @param  Cake\Chronos\Chronos|null $until  end date of search range
+     * @return array
+     */
     public function take(int $count = 1, string $since = null, string $until = null) : array
     {
         return $this->getTimes(
@@ -44,36 +51,67 @@ abstract class Schedule
         );
     }
 
+    /**
+     * set schedule time
+     * @param  int      $hour   hours
+     * @param  int      $minute minutes
+     * @param  int      $second seconds
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function time(int $hour, int $minute, int $second) : Schedule
     {
         $this->time = 3600 * $hour + 60 * $minute + $second;
         return $this;
     }
 
+    /**
+     * set schedule start time
+     * @param  string   $datetime start datetime
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function when(string $datetime) : Schedule
     {
         $this->datetime = new Chronos($datetime);
         return $this;
     }
 
+    /**
+     * set schedule item
+     * @param  mixed   $item schedule item
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function item($item) : Schedule
     {
         $this->item = $item;
         return $this;
     }
 
+    /**
+     * set number of schedule interval
+     * @param  int      $interval schedule interval
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function interval(int $interval) : Schedule
     {
         $this->interval = $interval;
         return $this;
     }
 
+    /**
+     * set number of repeat
+     * @param  int      $repeat number of repeat
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function repeat(int $repeat) : Schedule
     {
         $this->repeat = $repeat;
         return $this;
     }
 
+    /**
+     * get schedule parameters as array
+     * @return array schedule params
+     */
     public function toArray() : array
     {
         $result = [];
@@ -83,6 +121,11 @@ abstract class Schedule
         return $result;
     }
 
+    /**
+     * set schedule parameters from array
+     * @param  array    $params schedule parameters
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public function init(array $params) : Schedule
     {
         foreach ($this->fillable as $name) {

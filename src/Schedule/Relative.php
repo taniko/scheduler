@@ -22,12 +22,25 @@ class Relative extends Schedule
     const FRIDAY    = 32;
     const SATURDAY  = 64;
 
+    /**
+     * constructor
+     * @param int $relative_param relative param
+     * @param int $dow            day of week
+     */
     public function __construct(int $relative_param, int $dow)
     {
         $this->type           = parent::RELATIVE;
         $this->relative_param = $relative_param;
         $this->dow            = $dow;
     }
+
+    /**
+     * get times
+     * @param  int    $count  maximum number of items to take
+     * @param  Cake\Chronos\Chronos|null $since  start date of search range
+     * @param  Cake\Chronos\Chronos|null $until  end date of search range
+     * @return array
+     */
     protected function getTimes(int $count, Chronos $since = null, Chronos $until = null) : array
     {
         $since      = $since ?? $this->datetime;

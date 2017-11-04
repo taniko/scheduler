@@ -17,42 +17,79 @@ class Scheduler
 
     private $schedules = [];
 
-    public function add(Schedule $s)
+    /**
+     * add Schedule
+     * @param Taniko\Scheduler\Schedule\Schedule $schedule schedule instance
+     */
+    public function add(Schedule $schedule)
     {
-        $this->schedules[] = $s;
+        $this->schedules[] = $schedule;
     }
 
+    /**
+     * generate onetime schedule instance
+     * @return Taniko\Scheduler\Schedule\Onetime onetime schedule
+     */
     public static function onetime() : Onetime
     {
         return new Onetime();
     }
 
+    /**
+     * generate daily schedule instance
+     * @return Taniko\Scheduler\Schedule\Daily daily schedule
+     */
     public static function daily() : Daily
     {
         return new Daily();
     }
 
+    /**
+     * generate wkkely schedule instance
+     * @return Taniko\Scheduler\Schedule\Weekly wkkely schedule
+     */
     public static function weekly() : Weekly
     {
         return new Weekly();
     }
 
+    /**
+     * generate monthly schedule instance
+     * @return Taniko\Scheduler\Schedule\Monthly monthly schedule
+     */
     public static function monthly() : Monthly
     {
         return new Monthly;
     }
 
+    /**
+     * generate ralative schedule instance
+     * @param  int      $relative_param relative param
+     * @param  int      $dow            day of week
+     * @return Taniko\Scheduler\Schedule\Relative
+     */
     public static function relative(int $relative_param, int $dow) : Relative
     {
         return new Relative($relative_param, $dow);
     }
 
-
+    /**
+     * get schedules
+     * @return Taniko\Scheduler\Schedule\Schedule[]
+     */
     public function getSchedules() : array
     {
         return $this->schedules;
     }
 
+    /**
+     * check if there is schedule at the target time
+     * @param  Cake\Chronos\Chronos $target target datetime
+     * @param  Cake\Chronos\Chronos|null  $since  start date of search range
+     * @param  Cake\Chronos\Chronos|null  $until  end date of search range
+     * @param  int|null      $limit  maximum number of items to search
+     * @return bool
+     */
     public function exists(Chronos $target, Chronos $since = null, Chronos $until = null, int $limit = null) : bool
     {
         $result = false;
@@ -66,12 +103,19 @@ class Scheduler
         return $result;
     }
 
+    /**
+     * get times from added schedules
+     * @param  int|null $limit maximum number of items to take
+     * @param  Cake\Chronos\Chronos|null  $since  start date of search range
+     * @param  Cake\Chronos\Chronos|null  $until  end date of search range
+     * @return array
+     */
     public function take(int $limit = null, Chronos $since = null, Chronos $until = null) : array
     {
         $result = [];
         $limit  = $limit ?? self::DEFAULT_TAKE;
         foreach ($this->schedules as $key => $schedule) {
-            $result = array_merge($result, $schedule->take($limit));
+            $result = array_merge($result, $schedule->take($limit, $since, $until));
         }
         usort($result, function ($a, $b) {
             if ($a['start_at']->eq($b['start_at'])) {
@@ -85,6 +129,11 @@ class Scheduler
         return array_slice($result, 0, $limit);
     }
 
+    /**
+     * generate schedule instance from array
+     * @param  array    $params schedule parameters
+     * @return Taniko\Scheduler\Schedule\Schedule
+     */
     public static function fromArray(array $params) : Schedule
     {
         $schedule = null;
